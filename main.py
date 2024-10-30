@@ -77,27 +77,74 @@ class Board:
         each sell has format (row, colum)
         * If the space contains a piece it will display its number
         """
-        
-        print("  | ", end="")
-
-        for i in range(self.rows+1):
-            for j in range(self.columns+1):
-                if (i==0):
-                    if j != self.columns:
-                        print(j+1, end=" | ")
+        for row in range(self.rows+1):
+            numColor = "\033[36m"
+            boardColor = "\033[35m"
+            pieceColor = "\033[32m"
+            dataStr = f"{boardColor}"
+            spacerStr = f""
+            
+            for column in range(self.columns+1):
+                if row % 3 == 0 and row != 0 and row != self.rows:
+                    rowBold = True 
                 else:
-                    if(j==0):
-                        print(i, end=" | ")
+                    rowBold = False
+                if column % 3 == 0 and column != 0 and column != self.columns:
+                    columnBold = True
+                else:
+                    columnBold = False
+                rowPiece = "\u2501" if rowBold else "\u2500"
+                columnPiece = "\u2503" if columnBold else "\u2502"
+                match rowBold, columnBold:
+                        case True, True:
+                            intersectionPiece = "\u254b"
+                        case False, False:
+                            intersectionPiece = "\u253c"
+                        case True, False:
+                            intersectionPiece = "\u253f"
+                        case False, True:
+                            intersectionPiece = "\u2542"
+                if (row == self.rows):
+                    if columnBold:
+                        intersectionPiece = "\u2538"
                     else:
-                        # print(" ", end="")
-                        print(self.locStatus((i,j)), end=" | ")
-            print()
+                        intersectionPiece = "\u2534"
+                if (column == self.columns):
+                    if row == self.rows:
+                        intersectionPiece = "\u2518"
+
+                    elif rowBold:
+                        intersectionPiece = "\u2525"
+                    else:
+                        intersectionPiece = "\u2524"
+
+                if row == 0:
+                    if column == 0:
+                        dataStr += f"  {columnPiece}"
+                    else:
+                        dataStr += f' {numColor}{column}{boardColor} {columnPiece}'
+
+                else:
+                    if(column==0):
+                        dataStr += f'{numColor}{row}{boardColor} {columnPiece}'
+                    else:
+                        dataStr += f' {pieceColor}{self.locStatus((row,column))}{boardColor} {columnPiece}'
+
+                if (column % 3 == 0 and column != 0):
+                    spacerStr += rowPiece * 3 + intersectionPiece
+                elif column == 0:
+                    spacerStr += rowPiece * 2 + intersectionPiece
+                else:
+                    spacerStr += rowPiece * 3 + intersectionPiece
+            print(dataStr)
+            print(spacerStr)
 
             
 def main():
     #create playing area
-    board = Board(nonESquares=[((3,3), 4), ((1,1), 2)], rows=9,columns=9)   
+    board = Board(nonESquares=[((3,3), 4), ((1,1), 2)], rows=9,columns=9)
     board.printFloorLayout()
+    print()
     board.PlacePiece((2,1), 4)
     board.printFloorLayout()
 
