@@ -3,6 +3,9 @@ import time
 import random
 import numpy as np
 
+#functions for solving the Sudoku puzzles. The grid parameter being passes 
+# to the function is a 2d array with zero's indicating empty spaces and integers [1-9] in
+# the filled in spaces. 
 
 def solve_sudoku(grid):
     def is_valid(num, pos):
@@ -19,6 +22,7 @@ def solve_sudoku(grid):
                     return False
         return True
     
+    #Returns a list of all empty spaces in the board
     def find_empty():
         empty_list = [(i, j) for i in range(9) for j in range(9) if grid[i][j] == 0]
         if empty_list:
@@ -37,7 +41,8 @@ def solve_sudoku(grid):
             for j in range(box_x * 3, box_x * 3 + 3):
                 possible_nums.discard(grid[i][j])
         return len(possible_nums)
-
+    
+     #determines the degree at a specific position.
     def degree(pos):
         row, col = pos
         count = 0
@@ -69,83 +74,17 @@ def solve_sudoku(grid):
                     print(f"Variable: ({row+1}, {col+1}), Domain Size: {domain_size((row+1, col+1))}, Degree: {degree((row+1, col+1))}, Value: {i}")
                     assignment_counter += 1
                 grid[row][col] = i
-                print(grid[row][col])
+                #print(grid[row][col])
             
                 if solve():
                     return True
 
                 grid[row][col] = 0
-                print('\t', grid[row][col])
+                #print('\t', grid[row][col])
         return False
 
     solve()
     return grid             
-
-    
-
-
-def is_valid(board, row, col, num):
-    # Check row
-    for i in range(9):
-        if board[row][i] == num:
-            return False
-
-    # Check column
-    for j in range(9):
-        if board[j][col] == num:
-            return False
-
-    # Check 3x3 box
-    box_row = row // 3
-    box_col = col // 3
-    for i in range(box_row*3, box_row*3 + 3):
-        for j in range(box_col*3, box_col*3 + 3):
-            if board[i][j] == num:
-                return False
-
-    return True
-
-
-def fill_sudoku(board):
-    for i in range(9):
-        for j in range(9):
-            if board[i][j] == 0:
-                for num in range(1, 10):
-                    if is_valid(board, i, j, num):
-                        board[i][j] = num
-                        if fill_sudoku(board):
-                            return True
-                        board[i][j] = 0
-                return False
-    return True
-
-
-def generate_sudoku(difficulty):
-    board = np.zeros((9, 9), dtype=int)
-    fill_sudoku(board)
-
-    # Remove numbers for difficulty
-    if difficulty == 'easy':
-        removals = 20
-    elif difficulty == 'medium':
-        removals = 40
-    else:
-        removals = 60
-
-    while removals > 0:
-        row = random.randint(0, 8)
-        col = random.randint(0, 8)
-        if board[row][col] != 0:
-            board[row][col] = 0
-            removals -= 1
-
-    spaces = []
-    for i in range(board.shape[0]):
-        for j in range(board.shape[1]):
-            if (board[i][j] != 0):
-                spaces.append(((i+1,j), int(board[i][j])))
-    return board, spaces
-
 
 class Board:
     def __init__(self, nonESquares = [], rows = 9, columns = 9):
@@ -153,19 +92,16 @@ class Board:
         Initializes the space as a nxm matrix by rows and columns, 
 
         ## Parameters
+         * nonESquares:  List of non empty spaces in the 9x9 board
+            * Type: List of tuples
+
         * rows:  Number of rows for space 
             * Type: int
 
         * columns: Number of columns for space 
             * Type: int
-        * eSquares: List of location(s) (ordered pairs) for empty squares 
-            * Type: [(int, int),...]
-            * (1 based index)
-        * nonESquares: List of location(s) (ordered pairs) and their values for squares claimed 
-            * Type: [((int, int)) int),...]
-            * (1 based index)
         """
-        #the number of squares in the board that are not x or o
+        
         self.eSquares = list() 
         for i in range(rows):
             for j in range(columns):
@@ -180,33 +116,7 @@ class Board:
 
         self.rows = rows
         self.columns = columns
-
-
-    #place a number at a given board location
-    def PlacePiece(self, location, number):
-        #validate location is on the board
-        if(location[0]<1 or location[0]>= self.rows+1 or location[1]<1 or location[1] >= self.columns+1): 
-            return
-        
-        #if pos is empty, place 
-        if location in self.eSquares: 
-            self.eSquares.remove(location)
-            self.nonESquares[location] = number
-            return location
     
-    
-    #clear a board space (just used for debugging)
-    def clearPiece(self, location): 
-
-        #clear from o spaces
-        if location in self.nonESquares.keys(): 
-            del self.nonESquares[location]
-
-        if location not in self.eSquares: 
-            self.eSquares.append(location)
-        
-        return location
-
 
     #given a location, return ' ' if empty, the number associated if not empty
     def locStatus(self, location):
@@ -215,7 +125,7 @@ class Board:
         else:
             return ' '
 
-   
+    # method that formats and prints the board state
     def printFloorLayout(self):
         """
         Displays the layout of the space
@@ -283,20 +193,15 @@ class Board:
                     spacerStr += rowPiece * 3 + intersectionPiece
             print(dataStr)
             print(spacerStr)
-
             
 def main():
-    #create playing area
-    # difficulty = input("Enter difficulty (easy, medium, hard): ")
-    # difficulty = "hard"
-    # [boardGrid, spaces] = generate_sudoku(difficulty)
-   
+
     boardA = [((1,3),1),((1,6),2),((2,3),5),((2,6),6),((2,8),3),((3,1),4),((3,2),6),((3,6),5),((4,4),1),((4,6),4),((5,1),6),((5,4),8),((5,7),1),((5,8),4),((5,9),3),((6,5),9),((6,7),5),((6,9),8),((7,1),8),((7,5),4),((7,6),9),((7,8),5),((8,1),1),((8,4),3),((8,5),2),((9,3),9),((9,7),3)]
-    boardB = [((1,3),5),((1,5),1),((2,3),2),((2,6),4),((2,8),3),((3,1),9),((3,7),2),((3,9),6),((4,1),2),((4,5),3),((5,2),4),((5,7),7),((6,1),5),((6,6),7),((6,9),1),((7,4),6),((7,5),3),((8,2),6),((8,4),1),((9,5),7),((9,8),5)]
+    boardB = [((1,3),5),((1,5),1),((2,3),2),((2,6),4),((2,8),3),((3,1),1),((3,3),9),((3,7),2),((3,9),6),((4,1),2),((4,5),3),((5,2),4),((5,7),7),((6,1),5),((6,6),7),((6,9),1),((7,4),6),((7,6),3),((8,2),6),((8,4),1),((9,5),7),((9,8),5)]
     boardC = [((1,1),6),((1,2),7),((2,2),2),((2,3),5),((3,2),9),((3,4),5),((3,5),6),((3,7),2),((4,1),3),((4,5),8),((4,7),9),((5,7),8),((5,9),1),((6,4),4),((6,5),7),((7,3),8),((7,4),6),((7,8),9),((8,8),1),((9,1),1),((9,3),6),((9,5),5),((9,8),7)]
     
-    # for presetBoard in [boardA, boardB, boardC]:
-    for presetBoard in [boardB]:
+    #Solves boards A, B, and C
+    for presetBoard in [boardA, boardB, boardC]:
         spaces = np.zeros((9, 9), dtype=int)
         for i in presetBoard:
             spaces[i[0][0]-1][i[0][1]-1] = i[1]
@@ -307,7 +212,7 @@ def main():
         board.printFloorLayout()
         start = time.process_time()
         solvedBoard = solve_sudoku(spaces)
-        print(solvedBoard)
+        #print(solvedBoard)
         end = time.process_time()
 
         solvedBoardList = []
