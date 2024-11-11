@@ -8,6 +8,8 @@ import numpy as np
 # the filled in spaces. 
 
 def solve_sudoku(grid):
+
+    #Determines if a value can go in a specific position
     def is_valid(num, pos):
         for i in range(9):
             if grid[pos[0]][i] == num and pos[1] != i:
@@ -22,7 +24,7 @@ def solve_sudoku(grid):
                     return False
         return True
     
-    #Returns a list of all empty spaces in the board
+    #Returns an empty space on the board
     def find_empty():
         empty_list = [(i, j) for i in range(9) for j in range(9) if grid[i][j] == 0]
         if empty_list:
@@ -30,6 +32,7 @@ def solve_sudoku(grid):
             return empty_list[0]
         return None
     
+    #determines the domain size at a specific space on the board
     def domain_size(pos):
         row, col = pos
         possible_nums = set(range(1, 10))
@@ -42,7 +45,7 @@ def solve_sudoku(grid):
                 possible_nums.discard(grid[i][j])
         return len(possible_nums)
     
-     #determines the degree at a specific position.
+    #determines the degree at a specific position.
     def degree(pos):
         row, col = pos
         count = 0
@@ -60,7 +63,7 @@ def solve_sudoku(grid):
 
     assignment_counter = 0
     
-
+    # recursive backtracking function that attempts to solve the puzzle
     def solve():
         nonlocal assignment_counter
         empty = find_empty()
@@ -84,7 +87,7 @@ def solve_sudoku(grid):
         return False
 
     solve()
-    return grid             
+    return grid  
 
 class Board:
     def __init__(self, nonESquares = [], rows = 9, columns = 9):
